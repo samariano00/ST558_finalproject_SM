@@ -49,4 +49,18 @@ store_parsed
 ```
 
 # Modelling Our Data
-Looking at our data, I want to design a model that can predict the amount of profit made off an order, meaning profit will be our response variable.  
+Looking at our data, I want to design a model that can predict the amount of profit made off an order, meaning profit will be our response variable.
+
+Prior to creating any models, I'm going to do the initial preparation work, including splitting the data into training and test sets.
+```{r}
+# I'm going to fix the random number generation to allow the data to be reproducible
+set.seed(3)
+
+# Now, I'm going to split the data into training and test sets for fitting and testing our predictive models
+store_split <- initial_split(store_parsed, prop = 0.7)
+store_training <- training(store_split)
+store_test <- testing(store_split)
+```
+
+## Classification/ Regression Tree
+## Random Forest
