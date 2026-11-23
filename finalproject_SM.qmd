@@ -9,5 +9,44 @@ Prepare session to perform data analyses
 ```{r}
 library(tidyverse)
 library(tidymodels)
+library(readxl)
+library(lubridate)
 ```
 
+# Initial Data Work
+
+The data we're going to be working with describes data from online sales from a superstore based in the US.  The data includes sales from the continental US only and ranges from 2014-2018.  
+
+To start off, we're going to read-in the original data, save it as an R-object, and perform any data cleaning that would make performing our desired analyses easier down the line.
+```{r}
+# read in R object and save as object
+store_data <- read_excel("US Superstore data.xls")
+
+# Look at the data generated to see what cleaning needs to be done
+store_data
+
+# The data appears to be in a tibble, so we won't need to change its data type in order to work in the tidyverse.  I'm going to save the parsed data as a new R object in order to be able to reference it later on.
+store_parsed <- store_data |>
+  mutate(# First, I'll change the dates into time points as they are currently saved as character strings
+    `Order Date` = as.Date(`Order Date`),
+    `Ship Date` = as.Date(`Ship Date`),
+    # Next, since I'll change the postal code into a character string over a string of numbers since numeric calculations (like sum, mean, etc) can't be performed with this data
+    `Postal Code` = as.character(`Postal Code`),
+    # Finally, there are several variables that can only take on a limited set of known values, so I'll convert those variables into factors
+    `Ship Mode` = as.factor(`Ship Mode`),
+    Segment = as.factor(Segment),
+    State = as.factor(State),
+    Region = as.factor(Region),
+    Category = as.factor(Category),
+    `Sub-Category` = as.factor(`Sub-Category`)
+    # I'm happy with the data types the other variables are considering what values they contain, so I won't perform any additional parsing steps.
+    )
+
+# I'm going to print our parsed data one last time to ensure that it looks the way I want it to
+store_parsed
+
+# It looks like the data parsing was completed and all variables specified in the parsing step have their new data types!
+```
+
+# Modelling Our Data
+Looking at our data, I want to design a model that can predict the amount of profit made off an order, meaning profit will be our response variable.  
