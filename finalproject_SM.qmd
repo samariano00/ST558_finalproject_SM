@@ -60,7 +60,15 @@ set.seed(3)
 store_split <- initial_split(store_parsed, prop = 0.7)
 store_training <- training(store_split)
 store_test <- testing(store_split)
+
+# Create cross-validation data for evaluating our models
+store_cv_folds <- vfold_cv(store_training, 5)
 ```
 
-## Classification/ Regression Tree
+Because our response variable is a numeric variable, our model evaluation metric is going to be root mean square error (RMSE) to evaluate how our model does across all observations.
+
+## Regression Tree
+A regression tree is a type of predictive model that attempts to split up predictor space into regions.  Because our response variable is numeric, our model will be a regression tree instead of a classification tree (which would be used with categorical response variables).  The way that regression trees are made is that for each value of a predictor variable, the SSE is calculated. Whichever value has the lowest SSE is where a split will take place.  This process is repeated until all predictor variables have been accounted for and the response variable is able to be predicted.
+
 ## Random Forest
+A random forest model is a model that involves the use of bootstrapping (resampling) and the creation of many regression trees from these bootstrapped samples.  One of the major differences compared to the regression tree is that not all predictors are used at each step/ split.  This model is able to consider a random subset of predictor variable each time a split needs to be made.  The model with the best metric is then able to be selected.  We might prefer a random forest model over a regression tree for a decrease in variability.  With a normal regression tree, changes in the data can result in drastic changes in the tree.  However, because bootstrapping is involved, the best model is selected taking into account that different data is being used to build the model.  A random forest model would also be preferred over a normal regression tree because there's no method to consider how the current split might impact future splits beyond the next immediate split.
