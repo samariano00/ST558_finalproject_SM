@@ -55,6 +55,10 @@ store_parsed |>
 psych::describe(store_parsed)
 
 # It looks like there are no missing values and the only value that remains constant is the Country variable, which won't be used in our analysis
+
+# In performing analyses further down the line, I'm having problems creating a correlation grid, so I'm going to remove all variables that aren't being used to see if that will resolve the problem
+store_parsed <- store_parsed |>
+  select(Discount, Sales, `Sub-Category`, Segment, Profit)
 ```
 
 # Modelling Our Data
@@ -76,13 +80,13 @@ store_cv_folds <- vfold_cv(store_training, 5)
 
 Because our response variable is a numeric variable, our model evaluation metric is going to be root mean square error (RMSE) to evaluate how our model does across all observations.
 
-Since both of our models will use the same recipe, I'm going to create it in advance.  For our predictors, I'd like to see how Quantity, Sales, Region, and Product Sub-Category impact Profit, so I will set those as my predictor variables
+Since both of our models will use the same recipe, I'm going to create it in advance.  For our predictors, I'd like to see how Discount, Sales, Region, and Product Sub-Category impact Profit, so I will set those as my predictor variables
 ```{r}
-model_rec <- recipe(Profit ~ Discount + Sales + Segment + Category, data = store_training) |>
+model_rec <- recipe(Profit ~ ., data = store_training) |>
   # Since Region and sub-category are categorical variables, I'll set them as dummy variables
-  step_dummy(Segment, Category) |>
+  step_dummy(all_nominal_predictors()) |>
   # Our remaining predictors are numeric variables, so I'm going to normalize the values.
-  step_normalize(Discount, Sales)
+  step_normalize(all_numeric(), -all_outcomes())
 ```
 
 
@@ -106,10 +110,55 @@ tree_wkf <- workflow() |>
 
 Now that the workflow has been created, I'm going to fit it to our cross-validation folds that we created earlier to tune the model.
 ```{r}
+tree_grid <- grid_regular(cost_complexity(),
+                          tree_depth())
 tree_fit <- tree_wkf |>
-  tune_grid(resamples = store_cv_folds)
+  tune_grid(resamples = store_cv_folds,
+            grid = tree_grid)
 ```
-
 
 ## Random Forest
 A random forest model is a model that involves the use of bootstrapping (resampling) and the creation of many regression trees from these bootstrapped samples.  One of the major differences compared to the regression tree is that not all predictors are used at each step/ split.  This model is able to consider a random subset of predictor variable each time a split needs to be made.  The model with the best metric is then able to be selected.  We might prefer a random forest model over a regression tree for a decrease in variability.  With a normal regression tree, changes in the data can result in drastic changes in the tree.  However, because bootstrapping is involved, the best model is selected taking into account that different data is being used to build the model.  A random forest model would also be preferred over a normal regression tree because there's no method to consider how the current split might impact future splits beyond the next immediate split.
+
+As before, since the recipe has been established, now I'll define our model and engine and create our workflow.
+```{r}
+# Define model and engine
+rand_mod <- rand_forest(mtry = tune()) |>
+  set_engine("ranger", importance = "impurity") |>
+  set_mode("regression")
+
+# Create workflow
+rand_wkf <- workflow() |>
+  add_recipe(model_rec) |>
+  add_model(rand_mod)
+```
+
+Now that the workflow has been created, I'm going to fit it to our cross-validation folds that we created earlier to tune the model.
+```{r}
+rand_fit <- rand_wkf |>
+  tune_grid(resamples = store_cv_folds,
+            grid = 10)
+```
+
+Now that our model has been fit, I'm going to collect the metrics of the model and choose the one that has the best fit, meaning the lowest RMSE value.
+```{r}
+# First, I'm going to sort the established models based on lowest to highest RMSE.
+rand_fit |>
+  collect_metrics() |>
+  filter(.metric == "rmse") |>
+  arrange(mean)
+
+# Now that we've looked at the RMSE values, I'm going to save the best model as a new object that we can use to refit our training set and fit the test set on
+rand_best_param <- select_best(rand_fit, metric = "rmse")
+```
+
+Now that our best model has been selected and saved, I'm going to refit on the training set to allow for comparison.
+```{r}
+rand_final_wkf <- rand_wkf |>
+  finalize_workflow(rand_best_param)
+
+rand_final_fit <- rand_final_wkf |>
+  last_fit(store_split)
+```
+
+## Final Model Selection
