@@ -76,7 +76,7 @@ store_cv_folds <- vfold_cv(store_training, 5)
 
 Because our response variable is a numeric variable, our model evaluation metric is going to be root mean square error (RMSE) to evaluate how our model does across all observations.
 
-Since both of our models will use the same recipe, I'm going to create it in advance.  For our predictors, I'd like to see how Discount, Product Sub-Category and Consumer Segment impact Profit, so I will set those as my predictor variables
+Since both of our models will use the same recipe, I'm going to create it in advance.  For our predictors, I'd like to see how Discount, Product Sub-Category and Consumer Segment impact Profit, so I will set those as my predictor variables.
 ```{r}
 model_rec <- recipe(Profit ~ Discount + `Sub-Category` + Segment, data = store_training) |>
   # Since Region and sub-category are categorical variables, I'll set them as dummy variables
