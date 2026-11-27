@@ -55,10 +55,6 @@ store_parsed |>
 psych::describe(store_parsed)
 
 # It looks like there are no missing values and the only value that remains constant is the Country variable, which won't be used in our analysis
-
-# In performing analyses further down the line, I'm having problems creating a correlation grid, so I'm going to remove all variables that aren't being used to see if that will resolve the problem
-store_parsed <- store_parsed |>
-  select(Discount, Sales, `Sub-Category`, Segment, Profit)
 ```
 
 # Modelling Our Data
@@ -69,8 +65,12 @@ Prior to creating any models, I'm going to do the initial preparation work, incl
 # I'm going to fix the random number generation to allow the data to be reproducible
 set.seed(3)
 
+# Before splitting the data, I'm only going to select for the response variable (Profit) and the exploratory variables that I'm interested in (Discount, Sub-Category, and Segment)
+store_exploratory <- store_parsed |>
+  select(Profit, Discount, `Sub-Category`, Segment)
+
 # Now, I'm going to split the data into training and test sets for fitting and testing our predictive models
-store_split <- initial_split(store_parsed, prop = 0.7)
+store_split <- initial_split(store_exploratory, prop = 0.7)
 store_training <- training(store_split)
 store_test <- testing(store_split)
 
@@ -80,13 +80,13 @@ store_cv_folds <- vfold_cv(store_training, 5)
 
 Because our response variable is a numeric variable, our model evaluation metric is going to be root mean square error (RMSE) to evaluate how our model does across all observations.
 
-Since both of our models will use the same recipe, I'm going to create it in advance.  For our predictors, I'd like to see how Discount, Sales, Region, and Product Sub-Category impact Profit, so I will set those as my predictor variables
+Since both of our models will use the same recipe, I'm going to create it in advance.  For our predictors, I'd like to see how Discount, Product Sub-Category and Consumer Segment impact Profit, so I will set those as my predictor variables
 ```{r}
 model_rec <- recipe(Profit ~ ., data = store_training) |>
   # Since Region and sub-category are categorical variables, I'll set them as dummy variables
-  step_dummy(all_nominal_predictors()) |>
+  step_dummy(`Sub-Category`, Segment) |>
   # Our remaining predictors are numeric variables, so I'm going to normalize the values.
-  step_normalize(all_numeric(), -all_outcomes())
+  step_normalize(Discount)
 ```
 
 
@@ -111,10 +111,33 @@ tree_wkf <- workflow() |>
 Now that the workflow has been created, I'm going to fit it to our cross-validation folds that we created earlier to tune the model.
 ```{r}
 tree_grid <- grid_regular(cost_complexity(),
-                          tree_depth())
+                          tree_depth(),
+                          levels = c(10,5))
 tree_fit <- tree_wkf |>
   tune_grid(resamples = store_cv_folds,
-            grid = tree_grid)
+            grid = tree_grid,
+            metrics = metric_set(rmse))
+```
+
+Now that our model has been fit, I'm going to collect the metrics of the model and choose the one that has the best fit, meaning the lowest RMSE.
+```{r}
+# First, I'm going to sort the established models based on lowest to highest RMSE.
+tree_fit |>
+  collect_metrics() |>
+  filter(.metric == "rmse") |>
+  arrange(mean)
+
+# Now that we've looked at the RMSE values, I'm going to save the best model as a new object that we can use to refit our training set and fit the test set on
+tree_best_param <- select_best(tree_fit, metric = "rmse")
+```
+
+Now that our best model has been selected and saved, I'm going to refit on the training set to allow for comparison.
+```{r}
+tree_final_wkf <- tree_wkf |>
+  finalize_workflow(tree_best_param)
+
+tree_final_fit <- tree_final_wkf |>
+  last_fit(store_split)
 ```
 
 ## Random Forest
@@ -140,7 +163,7 @@ rand_fit <- rand_wkf |>
             grid = 10)
 ```
 
-Now that our model has been fit, I'm going to collect the metrics of the model and choose the one that has the best fit, meaning the lowest RMSE value.
+Now that our model has been fit, I'm going to collect the metrics of the model and choose the one that has the best fit.
 ```{r}
 # First, I'm going to sort the established models based on lowest to highest RMSE.
 rand_fit |>
@@ -162,3 +185,4 @@ rand_final_fit <- rand_final_wkf |>
 ```
 
 ## Final Model Selection
+
