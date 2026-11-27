@@ -65,12 +65,8 @@ Prior to creating any models, I'm going to do the initial preparation work, incl
 # I'm going to fix the random number generation to allow the data to be reproducible
 set.seed(3)
 
-# Before splitting the data, I'm only going to select for the response variable (Profit) and the exploratory variables that I'm interested in (Discount, Sub-Category, and Segment)
-store_exploratory <- store_parsed |>
-  select(Profit, Discount, `Sub-Category`, Segment)
-
 # Now, I'm going to split the data into training and test sets for fitting and testing our predictive models
-store_split <- initial_split(store_exploratory, prop = 0.7)
+store_split <- initial_split(store_parsed, prop = 0.7)
 store_training <- training(store_split)
 store_test <- testing(store_split)
 
@@ -82,7 +78,7 @@ Because our response variable is a numeric variable, our model evaluation metric
 
 Since both of our models will use the same recipe, I'm going to create it in advance.  For our predictors, I'd like to see how Discount, Product Sub-Category and Consumer Segment impact Profit, so I will set those as my predictor variables
 ```{r}
-model_rec <- recipe(Profit ~ ., data = store_training) |>
+model_rec <- recipe(Profit ~ Discount + `Sub-Category` + Segment, data = store_training) |>
   # Since Region and sub-category are categorical variables, I'll set them as dummy variables
   step_dummy(`Sub-Category`, Segment) |>
   # Our remaining predictors are numeric variables, so I'm going to normalize the values.
@@ -185,4 +181,24 @@ rand_final_fit <- rand_final_wkf |>
 ```
 
 ## Final Model Selection
+After selecting the two best models for our regression tree and our random forest models, we can now compare the results of both of these models on the test set and select the best model.
+```{r}
+bind_rows(
+  collect_metrics(tree_final_fit) |> mutate(Model = "Regression Tree"),
+  collect_metrics(rand_final_fit) |> mutate(Model = "Random Forest")
+)
+```
+It looks like our regression tree model does the better job of fitting the data! It's RMSE value of 202.4 (while still high), is lower than our random forest model's RMSE value of 204.9.
+
+We can now fit the regression tree model over our data.
+```{r}
+final_model <- tree_final_wkf |>
+  fit(store_parsed)
+
+# After the model has been fit, we can visualize the regression tree
+final_model |>
+  extract_fit_engine() |>
+  rpart.plot::rpart.plot(roundint = FALSE)
+
+```
 

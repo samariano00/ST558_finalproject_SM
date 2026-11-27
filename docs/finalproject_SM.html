@@ -187,9 +187,430 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ✖ yardstick::spec() masks readr::spec()
 ✖ recipes::step()   masks stats::step()</code></pre>
 </div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="initial-data-work" class="level1">
+<h1>Initial Data Work</h1>
+<p>The data we’re going to be working with describes data from online sales from a superstore based in the US. The data includes sales from the continental US only and ranges from 2014-2018.</p>
+<p>To start off, we’re going to read-in the original data, save it as an R-object, and perform any data cleaning that would make performing our desired analyses easier down the line.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in R object and save as object</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>store_data <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"US Superstore data.xls"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L2236 / R2236C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L5276 / R5276C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L8800 / R8800C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9148 / R9148C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9149 / R9149C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9150 / R9150C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9388 / R9388C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9389 / R9389C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9390 / R9390C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9391 / R9391C12: '05408'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Coercing text to numeric in L9743 / R9743C12: '05408'</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at the data generated to see what cleaning needs to be done</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>store_data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9,994 × 21
+   `Row ID` `Order ID`     `Order Date`        `Ship Date`         `Ship Mode`  
+      &lt;dbl&gt; &lt;chr&gt;          &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;        
+ 1        1 CA-2016-152156 2016-11-08 00:00:00 2016-11-11 00:00:00 Second Class 
+ 2        2 CA-2016-152156 2016-11-08 00:00:00 2016-11-11 00:00:00 Second Class 
+ 3        3 CA-2016-138688 2016-06-12 00:00:00 2016-06-16 00:00:00 Second Class 
+ 4        4 US-2015-108966 2015-10-11 00:00:00 2015-10-18 00:00:00 Standard Cla…
+ 5        5 US-2015-108966 2015-10-11 00:00:00 2015-10-18 00:00:00 Standard Cla…
+ 6        6 CA-2014-115812 2014-06-09 00:00:00 2014-06-14 00:00:00 Standard Cla…
+ 7        7 CA-2014-115812 2014-06-09 00:00:00 2014-06-14 00:00:00 Standard Cla…
+ 8        8 CA-2014-115812 2014-06-09 00:00:00 2014-06-14 00:00:00 Standard Cla…
+ 9        9 CA-2014-115812 2014-06-09 00:00:00 2014-06-14 00:00:00 Standard Cla…
+10       10 CA-2014-115812 2014-06-09 00:00:00 2014-06-14 00:00:00 Standard Cla…
+# ℹ 9,984 more rows
+# ℹ 16 more variables: `Customer ID` &lt;chr&gt;, `Customer Name` &lt;chr&gt;,
+#   Segment &lt;chr&gt;, Country &lt;chr&gt;, City &lt;chr&gt;, State &lt;chr&gt;, `Postal Code` &lt;dbl&gt;,
+#   Region &lt;chr&gt;, `Product ID` &lt;chr&gt;, Category &lt;chr&gt;, `Sub-Category` &lt;chr&gt;,
+#   `Product Name` &lt;chr&gt;, Sales &lt;dbl&gt;, Quantity &lt;dbl&gt;, Discount &lt;dbl&gt;,
+#   Profit &lt;dbl&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The data appears to be in a tibble, so we won't need to change its data type in order to work in the tidyverse.  I'm going to save the parsed data as a new R object in order to be able to reference it later on.</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>store_parsed <span class="ot">&lt;-</span> store_data <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="co"># First, I'll change the dates into time points as they are currently saved as character strings</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Order Date</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.Date</span>(<span class="st">`</span><span class="at">Order Date</span><span class="st">`</span>),</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Ship Date</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.Date</span>(<span class="st">`</span><span class="at">Ship Date</span><span class="st">`</span>),</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Next, since I'll change the postal code into a character string over a string of numbers since numeric calculations (like sum, mean, etc) can't be performed with this data</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Postal Code</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.character</span>(<span class="st">`</span><span class="at">Postal Code</span><span class="st">`</span>),</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Finally, there are several variables that can only take on a limited set of known values, so I'll convert those variables into factors</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Ship Mode</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.factor</span>(<span class="st">`</span><span class="at">Ship Mode</span><span class="st">`</span>),</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Segment =</span> <span class="fu">as.factor</span>(Segment),</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">State =</span> <span class="fu">as.factor</span>(State),</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">Region =</span> <span class="fu">as.factor</span>(Region),</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">Category =</span> <span class="fu">as.factor</span>(Category),</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Sub-Category</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">as.factor</span>(<span class="st">`</span><span class="at">Sub-Category</span><span class="st">`</span>)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># I'm happy with the data types the other variables are considering what values they contain, so I won't perform any additional parsing steps.</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="co"># I'm going to print our parsed data one last time to ensure that it looks the way I want it to</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>store_parsed</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9,994 × 21
+   `Row ID` `Order ID`     `Order Date` `Ship Date` `Ship Mode`    `Customer ID`
+      &lt;dbl&gt; &lt;chr&gt;          &lt;date&gt;       &lt;date&gt;      &lt;fct&gt;          &lt;chr&gt;        
+ 1        1 CA-2016-152156 2016-11-08   2016-11-11  Second Class   CG-12520     
+ 2        2 CA-2016-152156 2016-11-08   2016-11-11  Second Class   CG-12520     
+ 3        3 CA-2016-138688 2016-06-12   2016-06-16  Second Class   DV-13045     
+ 4        4 US-2015-108966 2015-10-11   2015-10-18  Standard Class SO-20335     
+ 5        5 US-2015-108966 2015-10-11   2015-10-18  Standard Class SO-20335     
+ 6        6 CA-2014-115812 2014-06-09   2014-06-14  Standard Class BH-11710     
+ 7        7 CA-2014-115812 2014-06-09   2014-06-14  Standard Class BH-11710     
+ 8        8 CA-2014-115812 2014-06-09   2014-06-14  Standard Class BH-11710     
+ 9        9 CA-2014-115812 2014-06-09   2014-06-14  Standard Class BH-11710     
+10       10 CA-2014-115812 2014-06-09   2014-06-14  Standard Class BH-11710     
+# ℹ 9,984 more rows
+# ℹ 15 more variables: `Customer Name` &lt;chr&gt;, Segment &lt;fct&gt;, Country &lt;chr&gt;,
+#   City &lt;chr&gt;, State &lt;fct&gt;, `Postal Code` &lt;chr&gt;, Region &lt;fct&gt;,
+#   `Product ID` &lt;chr&gt;, Category &lt;fct&gt;, `Sub-Category` &lt;fct&gt;,
+#   `Product Name` &lt;chr&gt;, Sales &lt;dbl&gt;, Quantity &lt;dbl&gt;, Discount &lt;dbl&gt;,
+#   Profit &lt;dbl&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># It looks like the data parsing was completed and all variables specified in the parsing step have their new data types!</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co"># I'm also going take a look at the data to see if there are any missing values or any that remain constant</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(store_parsed)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Row ID          Order ID      Order Date           Ship Date         
+ Min.   :   1   Length   :9994   Min.   :2014-01-03   Min.   :2014-01-07  
+ 1st Qu.:2499   N.unique :5009   1st Qu.:2015-05-23   1st Qu.:2015-05-27  
+ Median :4998   N.blank  :   0   Median :2016-06-26   Median :2016-06-29  
+ Mean   :4998   Min.nchar:  14   Mean   :2016-04-30   Mean   :2016-05-03  
+ 3rd Qu.:7496   Max.nchar:  14   3rd Qu.:2017-05-14   3rd Qu.:2017-05-18  
+ Max.   :9994                    Max.   :2017-12-30   Max.   :2018-01-05  
+                                                                          
+          Ship Mode       Customer ID     Customer Name         Segment    
+ First Class   :1538   Length   :9994   Length   :9994   Consumer   :5191  
+ Same Day      : 543   N.unique : 793   N.unique : 793   Corporate  :3020  
+ Second Class  :1945   N.blank  :   0   N.blank  :   0   Home Office:1783  
+ Standard Class:5968   Min.nchar:   8   Min.nchar:   7                     
+                       Max.nchar:   8   Max.nchar:  22                     
+                                                                           
+                                                                           
+      Country            City               State         Postal Code  
+ Length   :9994   Length   :9994   California  :2001   Length   :9994  
+ N.unique :   1   N.unique : 531   New York    :1128   N.unique : 631  
+ N.blank  :   0   N.blank  :   0   Texas       : 985   N.blank  :   0  
+ Min.nchar:  13   Min.nchar:   4   Pennsylvania: 587   Min.nchar:   4  
+ Max.nchar:  13   Max.nchar:  17   Washington  : 506   Max.nchar:   5  
+                                   Illinois    : 492                   
+                                   (Other)     :4295                   
+     Region         Product ID              Category         Sub-Category 
+ Central:2323   Length   :9994   Furniture      :2121   Binders    :1523  
+ East   :2848   N.unique :1862   Office Supplies:6026   Paper      :1370  
+ South  :1620   N.blank  :   0   Technology     :1847   Furnishings: 957  
+ West   :3203   Min.nchar:  15                          Phones     : 889  
+                Max.nchar:  15                          Storage    : 846  
+                                                        Art        : 796  
+                                                        (Other)    :3613  
+    Product Name      Sales              Quantity        Discount     
+ Length   :9994   Min.   :    0.444   Min.   : 1.00   Min.   :0.0000  
+ N.unique :1850   1st Qu.:   17.280   1st Qu.: 2.00   1st Qu.:0.0000  
+ N.blank  :   0   Median :   54.490   Median : 3.00   Median :0.2000  
+ Min.nchar:   5   Mean   :  229.858   Mean   : 3.79   Mean   :0.1562  
+ Max.nchar: 127   3rd Qu.:  209.940   3rd Qu.: 5.00   3rd Qu.:0.2000  
+                  Max.   :22638.480   Max.   :14.00   Max.   :0.8000  
+                                                                      
+     Profit         
+ Min.   :-6599.978  
+ 1st Qu.:    1.729  
+ Median :    8.666  
+ Mean   :   28.657  
+ 3rd Qu.:   29.364  
+ Max.   : 8399.976  
+                    </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>store_parsed <span class="sc">|&gt;</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span><span class="fu">sum</span>(<span class="fu">is.na</span>(.)))) <span class="sc">|&gt;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">everything</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 21 × 2
+   name          value
+   &lt;chr&gt;         &lt;int&gt;
+ 1 Row ID            0
+ 2 Order ID          0
+ 3 Order Date        0
+ 4 Ship Date         0
+ 5 Ship Mode         0
+ 6 Customer ID       0
+ 7 Customer Name     0
+ 8 Segment           0
+ 9 Country           0
+10 City              0
+# ℹ 11 more rows</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>psych<span class="sc">::</span><span class="fu">describe</span>(store_parsed)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in FUN(newX[, i], ...): no non-missing arguments to min; returning Inf</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in FUN(newX[, i], ...): no non-missing arguments to min; returning Inf</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in FUN(newX[, i], ...): no non-missing arguments to max; returning -Inf
+Warning in FUN(newX[, i], ...): no non-missing arguments to max; returning -Inf</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               vars    n    mean      sd  median trimmed     mad      min
+Row ID            1 9994 4997.50 2885.16 4997.50 4997.50 3704.28     1.00
+Order ID*         2 9994 2496.24 1460.59 2499.00 2494.18 1900.69     1.00
+Order Date        3 9994     NaN      NA      NA     NaN      NA      Inf
+Ship Date         4 9994     NaN      NA      NA     NaN      NA      Inf
+Ship Mode*        5 9994    3.24    1.10    4.00    3.42    0.00     1.00
+Customer ID*      6 9994  401.47  228.58  406.50  402.44  292.81     1.00
+Customer Name*    7 9994  401.61  228.30  407.00  402.49  295.04     1.00
+Segment*          8 9994    1.66    0.76    1.00    1.57    0.00     1.00
+Country*          9 9994    1.00    0.00    1.00    1.00    0.00     1.00
+City*            10 9994  280.96  139.16  296.00  285.62  166.05     1.00
+State*           11 9994   23.34   15.50   28.00   23.08   20.76     1.00
+Postal Code*     12 9994  301.45  211.95  321.00  300.65  293.55     1.00
+Region*          13 9994    2.57    1.16    2.00    2.59    1.48     1.00
+Product ID*      14 9994  899.47  526.71  864.00  893.83  671.62     1.00
+Category*        15 9994    1.97    0.63    2.00    1.97    0.00     1.00
+Sub-Category*    16 9994    8.59    5.05   10.00    8.61    7.41     1.00
+Product Name*    17 9994  923.33  531.68  908.00  924.19  679.77     1.00
+Sales            18 9994  229.86  623.25   54.49  113.18   67.32     0.44
+Quantity         19 9994    3.79    2.23    3.00    3.53    1.48     1.00
+Discount         20 9994    0.16    0.21    0.20    0.11    0.30     0.00
+Profit           21 9994   28.66  234.26    8.67   15.80   15.98 -6599.98
+                    max    range  skew kurtosis    se
+Row ID          9994.00  9993.00  0.00    -1.20 28.86
+Order ID*       5009.00  5008.00  0.01    -1.23 14.61
+Order Date         -Inf     -Inf    NA       NA    NA
+Ship Date          -Inf     -Inf    NA       NA    NA
+Ship Mode*         4.00     3.00 -1.17    -0.16  0.01
+Customer ID*     793.00   792.00 -0.03    -1.19  2.29
+Customer Name*   793.00   792.00 -0.02    -1.19  2.28
+Segment*           3.00     2.00  0.66    -0.99  0.01
+Country*           1.00     0.00   NaN      NaN  0.00
+City*            531.00   530.00 -0.25    -1.05  1.39
+State*            49.00    48.00 -0.03    -1.55  0.16
+Postal Code*     631.00   630.00 -0.01    -1.47  2.12
+Region*            4.00     3.00  0.00    -1.47  0.01
+Product ID*     1862.00  1861.00  0.06    -1.14  5.27
+Category*          3.00     2.00  0.02    -0.48  0.01
+Sub-Category*     17.00    16.00 -0.02    -1.48  0.05
+Product Name*   1850.00  1849.00  0.00    -1.19  5.32
+Sales          22638.48 22638.04 12.97   305.10  6.23
+Quantity          14.00    13.00  1.28     1.99  0.02
+Discount           0.80     0.80  1.68     2.41  0.00
+Profit          8399.98 14999.95  7.56   396.91  2.34</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># It looks like there are no missing values and the only value that remains constant is the Country variable, which won't be used in our analysis</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="modelling-our-data" class="level1">
+<h1>Modelling Our Data</h1>
+<p>Looking at our data, I want to design a model that can predict the amount of profit made off an order, meaning profit will be our response variable.</p>
+<p>Prior to creating any models, I’m going to do the initial preparation work, including splitting the data into training and test sets.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># I'm going to fix the random number generation to allow the data to be reproducible</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Now, I'm going to split the data into training and test sets for fitting and testing our predictive models</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>store_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(store_parsed, <span class="at">prop =</span> <span class="fl">0.7</span>)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>store_training <span class="ot">&lt;-</span> <span class="fu">training</span>(store_split)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>store_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(store_split)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Create cross-validation data for evaluating our models</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>store_cv_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(store_training, <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Because our response variable is a numeric variable, our model evaluation metric is going to be root mean square error (RMSE) to evaluate how our model does across all observations.</p>
+<p>Since both of our models will use the same recipe, I’m going to create it in advance. For our predictors, I’d like to see how Discount, Product Sub-Category and Consumer Segment impact Profit, so I will set those as my predictor variables</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>model_rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(Profit <span class="sc">~</span> Discount <span class="sc">+</span> <span class="st">`</span><span class="at">Sub-Category</span><span class="st">`</span> <span class="sc">+</span> Segment, <span class="at">data =</span> store_training) <span class="sc">|&gt;</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Since Region and sub-category are categorical variables, I'll set them as dummy variables</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="st">`</span><span class="at">Sub-Category</span><span class="st">`</span>, Segment) <span class="sc">|&gt;</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Our remaining predictors are numeric variables, so I'm going to normalize the values.</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(Discount)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="regression-tree" class="level2">
+<h2 class="anchored" data-anchor-id="regression-tree">Regression Tree</h2>
+<p>A regression tree is a type of predictive model that attempts to split up predictor space into regions. Because our response variable is numeric, our model will be a regression tree instead of a classification tree (which would be used with categorical response variables). The way that regression trees are made is that for each value of a predictor variable, the SSE is calculated. Whichever value has the lowest SSE is where a split will take place. This process is repeated until all predictor variables have been accounted for and the response variable is able to be predicted.</p>
+<p>Since we’ve already created our recipe, the next steps are to define our model and engine and to create our workflow.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model and engine</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>tree_mod <span class="ot">&lt;-</span> <span class="fu">decision_tree</span>(<span class="at">tree_depth =</span> <span class="fu">tune</span>(),</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">min_n =</span> <span class="dv">20</span>,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">cost_complexity =</span> <span class="fu">tune</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"rpart"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create workflow</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>tree_wkf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(model_rec) <span class="sc">|&gt;</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(tree_mod)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now that the workflow has been created, I’m going to fit it to our cross-validation folds that we created earlier to tune the model.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>tree_grid <span class="ot">&lt;-</span> <span class="fu">grid_regular</span>(<span class="fu">cost_complexity</span>(),</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">tree_depth</span>(),</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">10</span>,<span class="dv">5</span>))</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>tree_fit <span class="ot">&lt;-</span> tree_wkf <span class="sc">|&gt;</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(<span class="at">resamples =</span> store_cv_folds,</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">grid =</span> tree_grid,</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">metrics =</span> <span class="fu">metric_set</span>(rmse))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now that our model has been fit, I’m going to collect the metrics of the model and choose the one that has the best fit, meaning the lowest RMSE.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, I'm going to sort the established models based on lowest to highest RMSE.</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>tree_fit <span class="sc">|&gt;</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">|&gt;</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rmse"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 50 × 8
+   cost_complexity tree_depth .metric .estimator  mean     n std_err .config    
+             &lt;dbl&gt;      &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;      
+ 1    0.0001               15 rmse    standard    211.     5    14.9 pre0_mod35…
+ 2    0.00001              15 rmse    standard    211.     5    14.8 pre0_mod30…
+ 3    0.000001             15 rmse    standard    211.     5    14.8 pre0_mod25…
+ 4    0.0000001            15 rmse    standard    211.     5    14.8 pre0_mod20…
+ 5    0.0000000001         15 rmse    standard    211.     5    14.8 pre0_mod05…
+ 6    0.000000001          15 rmse    standard    211.     5    14.8 pre0_mod10…
+ 7    0.00000001           15 rmse    standard    211.     5    14.8 pre0_mod15…
+ 8    0.0001               11 rmse    standard    211.     5    14.8 pre0_mod34…
+ 9    0.00001              11 rmse    standard    211.     5    14.8 pre0_mod29…
+10    0.000001             11 rmse    standard    211.     5    14.8 pre0_mod24…
+# ℹ 40 more rows</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now that we've looked at the RMSE values, I'm going to save the best model as a new object that we can use to refit our training set and fit the test set on</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>tree_best_param <span class="ot">&lt;-</span> <span class="fu">select_best</span>(tree_fit, <span class="at">metric =</span> <span class="st">"rmse"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now that our best model has been selected and saved, I’m going to refit on the training set to allow for comparison.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>tree_final_wkf <span class="ot">&lt;-</span> tree_wkf <span class="sc">|&gt;</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">finalize_workflow</span>(tree_best_param)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>tree_final_fit <span class="ot">&lt;-</span> tree_final_wkf <span class="sc">|&gt;</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">last_fit</span>(store_split)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="random-forest" class="level2">
+<h2 class="anchored" data-anchor-id="random-forest">Random Forest</h2>
+<p>A random forest model is a model that involves the use of bootstrapping (resampling) and the creation of many regression trees from these bootstrapped samples. One of the major differences compared to the regression tree is that not all predictors are used at each step/ split. This model is able to consider a random subset of predictor variable each time a split needs to be made. The model with the best metric is then able to be selected. We might prefer a random forest model over a regression tree for a decrease in variability. With a normal regression tree, changes in the data can result in drastic changes in the tree. However, because bootstrapping is involved, the best model is selected taking into account that different data is being used to build the model. A random forest model would also be preferred over a normal regression tree because there’s no method to consider how the current split might impact future splits beyond the next immediate split.</p>
+<p>As before, since the recipe has been established, now I’ll define our model and engine and create our workflow.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model and engine</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>rand_mod <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>(<span class="at">mtry =</span> <span class="fu">tune</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>, <span class="at">importance =</span> <span class="st">"impurity"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create workflow</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>rand_wkf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(model_rec) <span class="sc">|&gt;</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(rand_mod)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now that the workflow has been created, I’m going to fit it to our cross-validation folds that we created earlier to tune the model.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>rand_fit <span class="ot">&lt;-</span> rand_wkf <span class="sc">|&gt;</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(<span class="at">resamples =</span> store_cv_folds,</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">grid =</span> <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Creating pre-processing data to finalize 1 unknown parameter: "mtry"</code></pre>
+</div>
+</div>
+<p>Now that our model has been fit, I’m going to collect the metrics of the model and choose the one that has the best fit.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, I'm going to sort the established models based on lowest to highest RMSE.</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>rand_fit <span class="sc">|&gt;</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">|&gt;</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rmse"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 7
+    mtry .metric .estimator  mean     n std_err .config         
+   &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;           
+ 1     8 rmse    standard    209.     5    14.8 pre0_mod05_post0
+ 2     5 rmse    standard    209.     5    15.0 pre0_mod03_post0
+ 3     7 rmse    standard    210.     5    14.7 pre0_mod04_post0
+ 4    10 rmse    standard    210.     5    14.8 pre0_mod06_post0
+ 5    12 rmse    standard    211.     5    14.6 pre0_mod07_post0
+ 6     3 rmse    standard    212.     5    15.4 pre0_mod02_post0
+ 7    14 rmse    standard    213.     5    14.4 pre0_mod08_post0
+ 8    17 rmse    standard    214.     5    14.8 pre0_mod09_post0
+ 9    19 rmse    standard    214.     5    14.7 pre0_mod10_post0
+10     1 rmse    standard    225.     5    16.4 pre0_mod01_post0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now that we've looked at the RMSE values, I'm going to save the best model as a new object that we can use to refit our training set and fit the test set on</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>rand_best_param <span class="ot">&lt;-</span> <span class="fu">select_best</span>(rand_fit, <span class="at">metric =</span> <span class="st">"rmse"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now that our best model has been selected and saved, I’m going to refit on the training set to allow for comparison.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>rand_final_wkf <span class="ot">&lt;-</span> rand_wkf <span class="sc">|&gt;</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">finalize_workflow</span>(rand_best_param)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>rand_final_fit <span class="ot">&lt;-</span> rand_final_wkf <span class="sc">|&gt;</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">last_fit</span>(store_split)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="final-model-selection" class="level2">
+<h2 class="anchored" data-anchor-id="final-model-selection">Final Model Selection</h2>
+<p>After selecting the two best models for our regression tree and our random forest models, we can now compare the results of both of these models on the test set and select the best model.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>(tree_final_fit) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">Model =</span> <span class="st">"Regression Tree"</span>),</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>(rand_final_fit) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">Model =</span> <span class="st">"Random Forest"</span>)</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 5
+  .metric .estimator .estimate .config         Model          
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;           &lt;chr&gt;          
+1 rmse    standard     202.    pre0_mod0_post0 Regression Tree
+2 rsq     standard       0.269 pre0_mod0_post0 Regression Tree
+3 rmse    standard     205.    pre0_mod0_post0 Random Forest  
+4 rsq     standard       0.246 pre0_mod0_post0 Random Forest  </code></pre>
+</div>
+</div>
+<p>It looks like our regression tree model does the better job of fitting the data! It’s RMSE value of 202.4 (while still high), is lower than our random forest model’s RMSE value of 204.9.</p>
+<p>We can now fit the regression tree model over our data.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>final_model <span class="ot">&lt;-</span> tree_final_wkf <span class="sc">|&gt;</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(store_parsed)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="co"># After the model has been fit, we can visualize the regression tree</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>final_model <span class="sc">|&gt;</span></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit_engine</span>() <span class="sc">|&gt;</span></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>  rpart.plot<span class="sc">::</span><span class="fu">rpart.plot</span>(<span class="at">roundint =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="finalproject_SM_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
 </div>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
