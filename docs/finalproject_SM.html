@@ -446,9 +446,9 @@ Profit          8399.98 14999.95  7.56   396.91  2.34</code></pre>
 <p>Since both of our models will use the same recipe, I’m going to create it in advance. For our predictors, I’d like to see how Discount, Product Sub-Category and Consumer Segment impact Profit, so I will set those as my predictor variables.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>model_rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(Profit <span class="sc">~</span> Discount <span class="sc">+</span> <span class="st">`</span><span class="at">Sub-Category</span><span class="st">`</span> <span class="sc">+</span> Segment, <span class="at">data =</span> store_training) <span class="sc">|&gt;</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Since Region and sub-category are categorical variables, I'll set them as dummy variables</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Since Segment and Sub-Category are categorical variables, I'll set them as dummy variables</span></span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="st">`</span><span class="at">Sub-Category</span><span class="st">`</span>, Segment) <span class="sc">|&gt;</span></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Our remaining predictors are numeric variables, so I'm going to normalize the values.</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Our predictor, Discount, is a numeric variable, so I'm going to normalize the values.</span></span>
 <span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(Discount)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="regression-tree" class="level2">
