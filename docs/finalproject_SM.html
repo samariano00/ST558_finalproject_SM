@@ -443,7 +443,7 @@ Profit          8399.98 14999.95  7.56   396.91  2.34</code></pre>
 <span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>store_cv_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(store_training, <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Because our response variable is a numeric variable, our model evaluation metric is going to be root mean square error (RMSE) to evaluate how our model does across all observations.</p>
-<p>Since both of our models will use the same recipe, I’m going to create it in advance. For our predictors, I’d like to see how Discount, Product Sub-Category and Consumer Segment impact Profit, so I will set those as my predictor variables.</p>
+<p>Since both of our models will use the same recipe, I’m going to create it in advance. For our predictors, I’d like to see how Discount, Product Sub-Category and Consumer Segment impact Profit, so I will set those as my predictor variables. These are some of the easier predictor variables to work with from the set and would likely have an impact on the ability to predict profit.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>model_rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(Profit <span class="sc">~</span> Discount <span class="sc">+</span> <span class="st">`</span><span class="at">Sub-Category</span><span class="st">`</span> <span class="sc">+</span> Segment, <span class="at">data =</span> store_training) <span class="sc">|&gt;</span></span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Since Segment and Sub-Category are categorical variables, I'll set them as dummy variables</span></span>
@@ -589,7 +589,7 @@ Profit          8399.98 14999.95  7.56   396.91  2.34</code></pre>
 4 rsq     standard       0.246 pre0_mod0_post0 Random Forest  </code></pre>
 </div>
 </div>
-<p>It looks like our regression tree model does the better job of fitting the data! It’s RMSE value of 202.4 (while still high), is lower than our random forest model’s RMSE value of 204.9.</p>
+<p>It looks like our regression tree model does the better job of fitting the data! Its RMSE value of 202.4 (while still quite high), is lower than our random forest model’s RMSE value of 204.9.</p>
 <p>We can now fit the regression tree model over our data.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>final_model <span class="ot">&lt;-</span> tree_final_wkf <span class="sc">|&gt;</span></span>

@@ -76,7 +76,7 @@ store_cv_folds <- vfold_cv(store_training, 5)
 
 Because our response variable is a numeric variable, our model evaluation metric is going to be root mean square error (RMSE) to evaluate how our model does across all observations.
 
-Since both of our models will use the same recipe, I'm going to create it in advance.  For our predictors, I'd like to see how Discount, Product Sub-Category and Consumer Segment impact Profit, so I will set those as my predictor variables.
+Since both of our models will use the same recipe, I'm going to create it in advance.  For our predictors, I'd like to see how Discount, Product Sub-Category and Consumer Segment impact Profit, so I will set those as my predictor variables.  These are some of the easier predictor variables to work with from the set and would likely have an impact on the ability to predict profit.
 ```{r}
 model_rec <- recipe(Profit ~ Discount + `Sub-Category` + Segment, data = store_training) |>
   # Since Segment and Sub-Category are categorical variables, I'll set them as dummy variables
@@ -188,7 +188,7 @@ bind_rows(
   collect_metrics(rand_final_fit) |> mutate(Model = "Random Forest")
 )
 ```
-It looks like our regression tree model does the better job of fitting the data! It's RMSE value of 202.4 (while still high), is lower than our random forest model's RMSE value of 204.9.
+It looks like our regression tree model does the better job of fitting the data! Its RMSE value of 202.4 (while still quite high), is lower than our random forest model's RMSE value of 204.9.
 
 We can now fit the regression tree model over our data.
 ```{r}
